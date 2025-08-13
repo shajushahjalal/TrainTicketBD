@@ -8,7 +8,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <Suspense>
       <Provider store={store}>
         <BrowserRouter>
@@ -20,5 +20,5 @@ createRoot(document.getElementById('root')).render(
         </BrowserRouter>
       </Provider>
     </Suspense>
-  </React.StrictMode>
+  // </React.StrictMode>
 )

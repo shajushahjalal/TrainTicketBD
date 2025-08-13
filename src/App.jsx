@@ -12,7 +12,7 @@ function App() {
 
   const navigate = useNavigate();
   const [isAuthenticate, setIsAuthenticate] = useState(false);
-  const accessToken = useSelector((state) => state.authentication.access_token) || localStorage.getItem("access_token")
+  const accessToken = useSelector((state) => state.authentication.access_token) || localStorage.getItem("api_token")
 
   useEffect(() => {
     checkLogin();

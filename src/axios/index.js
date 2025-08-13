@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const base_url = "http://127.0.0.1:8000/api";
-// const base_url = "http://127.0.0.1:8000";
+// const base_url = "https://backticlet.smshaju.com/api";
 export const api_version = "/v1"
 
 axios.defaults.baseURL = base_url + api_version;
@@ -15,11 +15,7 @@ axios.interceptors.request.use(request => {
 });
 
 axios.interceptors.response.use(response => {
-    if(response?.status == 200){
-        return response?.data;
-    }else{
-        return response;
-    }
+    return response;
 });
 
 export default axios;
