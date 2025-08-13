@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+  @apply font-sans;
+  background-color: #F1F1F4;
+}
+.dark body{
+  @apply font-sans;
+  background-color: #121214;
+}
+
+
+div, p, a{
+    font-size: 13px;
+}
+p, div, span, aside, section{
+    @apply text-gray-500
+}
+.primary{
+    color:#86A2FF;
+}
+.bg-primary{
+    background-color:#86A2FF;
+}
+.btn{
+    @apply px-3 py-2;
+}
+.btn-sm{
+    @apply px-2 py-0.5;
+}
+.black{
+    color:#111111
+}
