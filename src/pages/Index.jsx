@@ -2,15 +2,19 @@ import React, { useEffect, useState } from 'react'
 import { getSettings } from '../service/ApiService';
 import { setSettings } from '../states/authenticationSlice';
 import { useDispatch } from 'react-redux';
-import { getSettingsData } from '../helper/Helper';
+import { getAuthenticateToken, getSettingsData } from '../helper/Helper';
+import moment from 'moment';
+import Login from './Login';
 
 export default function Index() {
 
-  const settings = getSettingsData()
   const dispatch = useDispatch();
+  const settings = getSettingsData();
+  const apiToken = getAuthenticateToken();
 
   const [stations, setStations] = useState([]);
   const [seatType, setSeatType] = useState([]);
+  const [isShowLoginModal, setIsShowLoginModal] = useState(false);
 
   useEffect(()=>{
     if(Object.keys(settings).length == 0){
@@ -19,7 +23,24 @@ export default function Index() {
       setStations(settings?.stations);
       setSeatType(settings?.seatType);
     }
-  },[])
+  },[]);
+  
+  useEffect(() => {
+    if(apiToken){
+      checkLogin();
+    }else{
+      setIsShowLoginModal(true);
+    }
+  },[apiToken])
+
+  const checkLogin = async () => {
+    console.log("-----------check-auth-------")
+    if(apiToken){
+      
+    }else{
+
+    }
+  }
 
   const fetchSettingsData = async() => {
     try{
@@ -40,6 +61,61 @@ export default function Index() {
   }
 
   return (
-    <div>Index</div>
+    <>
+      <div className='w-full'>
+        <div className='flex gap-3'>
+          <div className='flex-1 grid gap-3 grid-col-1 sm:grid-cols-2 md:grid-cols-4'>
+            <div className='col-span-1'>
+              <label className='w-full'>Form Station</label>
+              <select className='w-full h-10 px-3 bg-transparent border rounded-lg'>
+                <option value="">Select Start Station</option>
+                {stations?.map((list, index) =>(
+                  <option key={index} value={list?.city_name}>{list?.city_name}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className='col-span-1'>
+              <label className='w-full'>To Station</label>
+              <select className='w-full h-10 px-3 bg-transparent border rounded-lg'>
+                <option value="">Select Destination Station</option>
+                {stations?.map((list, index) =>(
+                  <option key={index} value={list?.city_name}>{list?.city_name}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className='col-span-1'>
+              <label className='w-full'>Seat Type</label>
+              <select className='w-full h-10 px-3 bg-transparent border rounded-lg'>
+                <option value="">Select Seat Type</option>
+                {seatType?.en?.map((list, index) =>(
+                  <option key={index} value={list?.seat_class}>{list?.seat_class}</option>
+                ))}
+              </select>
+            </div>
+            <div className='col-span-1'>
+              <label className='w-full'>Date</label>
+              <input 
+                type='date' 
+                className='w-full h-10 px-3 bg-transparent border rounded-lg' 
+                min={moment(new Date()).format('YYYY-MM-DD')}
+              />
+            </div>
+          </div>
+          <div className='self-end'>
+              <button 
+                className='btn bg-green-800 text-white rounded-md'
+              >
+                Search
+              </button>
+          </div>
+        </div>
+      </div>
+
+      {isShowLoginModal && 
+        <Login openModal={isShowLoginModal} closeModal={()=>{setIsShowLoginModal(false)}} />
+      }
+    </>
   )
 }

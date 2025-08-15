@@ -12,7 +12,7 @@ export default function DashboardLayout({ children }) {
         </div>
       </section>
 
-      <section className='w-full lg:w-[90%] xl:w-[75%] m-auto mt-[50px] py-4 px-3'>
+      <section className='w-full lg:w-[90%] xl:w-[75%] m-auto mt-[65px] py-4 px-3 bg-white dark:bg-dark-light rounded-lg'>
         {children}
       </section>
     </div>

@@ -9,8 +9,8 @@ export const authenticationSlice = createSlice({
     },
     reducers: {
       login : (state, action) => {
-        state.api_token = action.payload?.api_token;
-        localStorage.setItem("api_token", action.payload?.api_token);
+        state.api_token = action.payload;
+        localStorage.setItem("api_token", action.payload);
       },
       setSettings :(state, action) => {
         state.settings = action.payload;

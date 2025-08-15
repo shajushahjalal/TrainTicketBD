@@ -16,6 +16,9 @@ axios.interceptors.request.use(request => {
 
 axios.interceptors.response.use(response => {
     return response;
+},
+error => {
+    return error?.response?.data;
 });
 
 export default axios;

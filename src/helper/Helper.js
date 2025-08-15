@@ -7,3 +7,7 @@ export const getSettingsData = () => {
     }
     return settings;
 }
+
+export const getAuthenticateToken = () => {
+    return useSelector((state) => state.authentication.api_token) || localStorage.getItem("api_token")
+}
