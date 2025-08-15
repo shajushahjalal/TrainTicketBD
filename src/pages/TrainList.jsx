@@ -7,6 +7,7 @@ export default function TrainList({trains = []}) {
   const [coachs, setCoachs] = useState();
   const [viewTrainSeat, setViewTrainSeat] = useState("");
   const [tripId, setTripId] = useState(0);
+  const [tripRouteId, setTripRouteId] = useState(0);
 
   useEffect(()=>{
     setCoachs([]);
@@ -15,6 +16,7 @@ export default function TrainList({trains = []}) {
   const showSeatLayput = async(seat, train) => {
     setCoachs([]);
     setViewTrainSeat(train?.trip_number);
+    setTripRouteId(seat?.trip_route_id);
     setTripId(seat?.trip_id)
     const payload = {
       trip_id : seat?.trip_id,
@@ -56,8 +58,13 @@ export default function TrainList({trains = []}) {
             </div>
             <div className='w-full'>
               {(coachs?.length > 0 && viewTrainSeat == train?.trip_number) &&
-                <SeatView coachs={coachs} />
-              }         
+              <div className='grid grid-cols-1 md:grid-cols-3'>
+                <div className='col-span-2'>
+                  <SeatView coachs={coachs} tripRouteId={tripRouteId} />
+                </div>
+                <div className='col-span-1'>ddd</div>
+              </div>
+              }
             </div>  
           </div>
         ))}

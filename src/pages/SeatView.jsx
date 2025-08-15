@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import { selectSeat, unselectSeat } from '../service/ApiService';
 
-export default function SeatView({coachs}) {
+export default function SeatView({coachs, tripRouteId}) {
 
   const [selectedCoach, setSelectedCoach] = useState("");
   const [seatList, setSeatList] = useState([]);
@@ -14,14 +15,53 @@ export default function SeatView({coachs}) {
           setSelectedCoach(coach?.floor_name);
           is_coach_selected = true;
         }
+        coach?.layout?.map((l) => {
+          l?.map((s) => {
+            if(s?.seat_availability === 1){
+              handleSeatClick(s.ticket_id);
+            }
+            
+          })
+        })
       }
     });
-  },[coachs])
+  },[coachs]);
 
   useEffect(()=>{
     const coach = coachs?.find((c) => c?.floor_name == selectedCoach);
     setSeatList(coach?.layout);
-  },[selectedCoach])
+  },[selectedCoach]);
+
+  const handleSeatClick = async (ticket_id) => {
+    const selected = selectedSeat.find((s) => s.ticket_id === ticket_id);
+
+    const payload = {
+      ticket_id: ticket_id,
+      route_id: tripRouteId
+    };
+
+    if (selected) {
+      const response = await unselectSeat(payload);
+      if (response?.status === 200) {
+        setSelectedSeat((prev) => prev.filter((s) => s.ticket_id !== ticket_id));
+      }
+    } else {
+      const response = await selectSeat(payload);
+      if (response?.status === 200) {
+        setSelectedSeat((prev) => [...prev, payload]);
+      }
+    }
+  };
+
+  const isSeatSelected = (ticket_id) => {
+    let _selectedSeat = [...selectedSeat];
+    const selected = _selectedSeat?.find((s) => s.ticket_id == ticket_id);
+    if(selected == undefined){
+      return false;
+    }else{
+      return true;
+    }
+  }
 
   return (
     <div className='w-full mt-3 mb-1 border p-3 rounded-lg border-green-800'>
@@ -42,9 +82,18 @@ export default function SeatView({coachs}) {
               <div className='flex items-center gap-3 mt-1'>
                 {seat_line?.map((seat, _index) => (
                   seat?.seat_number?.length > 0 ?
-                  <button 
+                  <button
+                    onClick={() => handleSeatClick(seat.ticket_id)} 
                     key={index+_index} 
-                    className={'w-[34px] min-h-[36px] px-1 py-1 border rounded-md text-[10px] ' + (seat.seat_availability ? 'border-green-800' : 'bg-yellow-600 text-white')}
+                    className={
+                      'w-[34px] min-h-[36px] px-1 py-1 border rounded-md text-[10px] ' + 
+                      (isSeatSelected(seat.ticket_id) ? 'bg-[#384c6b] text-white' :
+                      (
+                        seat?.seat_availability === 1 ? 'border-green-800' : 
+                        (seat?.seat_availability === 2 ? 'bg-green-700 text-white' :
+                        'bg-yellow-600 text-white')
+                      ))
+                    }
                   >
                     {seat?.seat_number}
                   </button>
@@ -60,8 +109,17 @@ export default function SeatView({coachs}) {
                 {seat_line?.map((seat, _index) => (
                   seat?.seat_number?.length > 0 ?
                   <button 
+                    onClick={() => handleSeatClick(seat.ticket_id)} 
                     key={index+_index} 
-                    className={'w-[34px] min-h-[36px] px-1 py-1 border rounded-md text-[10px] ' + (seat.seat_availability ? 'border-green-800' : 'bg-yellow-600 text-white')}
+                    className={
+                      'w-[34px] min-h-[36px] px-1 py-1 border rounded-md text-[10px] ' + 
+                      (isSeatSelected(seat.ticket_id) ? 'bg-[#384c6b] text-white' :
+                      (
+                        seat?.seat_availability === 1 ? 'border-green-800' : 
+                        (seat?.seat_availability === 2 ? 'bg-green-700 text-white' :
+                        'bg-yellow-600 text-white')
+                      ))
+                    }
                   >
                     {seat?.seat_number}
                   </button>
