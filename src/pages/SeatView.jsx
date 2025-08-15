@@ -20,7 +20,6 @@ export default function SeatView({coachs, tripRouteId}) {
             if(s?.seat_availability === 1){
               handleSeatClick(s.ticket_id);
             }
-            
           })
         })
       }
