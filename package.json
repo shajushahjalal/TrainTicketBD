@@ -25,6 +25,7 @@
     "react-perfect-scrollbar": "^1.5.8",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.3",
+    "react-top-loading-bar": "^3.0.2",
     "sweetalert2": "^11.6.13",
     "yup": "^1.6.1"
   },

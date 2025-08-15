@@ -1,4 +1,5 @@
 import axios from "axios";
+import { startLoading, stopLoading } from "../components/Loader/loadingBar";
 
 const base_url = "http://127.0.0.1:8000/api";
 // const base_url = "https://backticlet.smshaju.com/api";
@@ -12,13 +13,16 @@ axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem(
 axios.defaults.withCredentials = true;
 
 axios.interceptors.request.use(request => {
+    startLoading()
     return request;
 });
 
 axios.interceptors.response.use(response => {
+    stopLoading();
     return response;
 },
 error => {
+    stopLoading();
     return error?.response?.data;
 });
 

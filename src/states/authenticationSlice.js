@@ -6,7 +6,8 @@ export const authenticationSlice = createSlice({
     initialState: {
       api_token : "",
       user_date : {},
-      settings : {}    
+      settings : {},
+      ticketInfo : {}  
     },
     reducers: {
       login : (state, action) => {
@@ -20,6 +21,9 @@ export const authenticationSlice = createSlice({
       setUserData : (state, action) => {
         state.user_date = action.payload;
         localStorage.setItem("user_date", JSON.stringify(action.payload));
+      },
+      setTicketInfo : (state, action) => {
+        state.ticketInfo = action.payload;
       },
       logout: (state) => {
         state.api_token = "";
