@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { getSettings } from '../service/ApiService';
-import { setSettings } from '../states/authenticationSlice';
+import { getProfile, getSettings } from '../service/ApiService';
+import { setSettings, setUserData } from '../states/authenticationSlice';
 import { useDispatch } from 'react-redux';
 import { getAuthenticateToken, getSettingsData } from '../helper/Helper';
 import moment from 'moment';
@@ -34,9 +34,17 @@ export default function Index() {
   },[apiToken])
 
   const checkLogin = async () => {
-    console.log("-----------check-auth-------")
     if(apiToken){
-      
+      try{
+        const response = await getProfile();
+        console.log(response)
+        if(response?.status == 200){
+          dispatch(setUserData(response?.data?.data))
+        }else{
+          setIsShowLoginModal(true);
+        }
+      }catch(error){
+      }
     }else{
 
     }

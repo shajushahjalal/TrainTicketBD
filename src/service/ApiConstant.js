@@ -1,6 +1,7 @@
 export const api = {
     settings : "/settings",
     login : "/auth",
+    profile : "/profile",
     search_train : "/available-train",
     seat_layout : "/show-seat",
     select_seat : "/reserve-seat",

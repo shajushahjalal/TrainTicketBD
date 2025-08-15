@@ -11,3 +11,7 @@ export const getSettingsData = () => {
 export const getAuthenticateToken = () => {
     return useSelector((state) => state.authentication.api_token) || localStorage.getItem("api_token")
 }
+
+export const getUserData = () => {
+    return useSelector((state) => state.authentication.user_date);
+}

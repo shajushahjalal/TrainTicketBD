@@ -8,6 +8,7 @@ axios.defaults.baseURL = base_url + api_version;
 axios.defaults.headers.common['Authorization'] = "";
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.headers.common['Accept'] = 'application/json';
+axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem("api_token")}`;
 axios.defaults.withCredentials = true;
 
 axios.interceptors.request.use(request => {

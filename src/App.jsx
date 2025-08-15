@@ -7,7 +7,6 @@ import PageTitle from './components/pageTitle/PageTitle';
 
 
 function App() {
-
   return (
     <>
       <DashboardLayout>

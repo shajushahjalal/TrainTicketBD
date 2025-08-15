@@ -7,6 +7,7 @@ import * as Yup from 'yup'
 import { Dialog } from '@headlessui/react';
 import img from '../assets/image/login_bg.png'
 import { userLogin } from '../service/ApiService';
+import axios from '../axios/index';
 
 
 export default function Login({openModal, closeModal}) {
@@ -21,8 +22,10 @@ export default function Login({openModal, closeModal}) {
     try{
       const response = await userLogin(values);
       if(response?.status == 200){
-        dispatch((login(response?.data?.data?.token)));
+        const token = response?.data?.data?.token;
+        dispatch((login(token)));
         closeModal();
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       }else{
         setErrorMessage(response?.error?.messages[0] ?? "Error Try again later");
       }
