@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { selectSeat, unselectSeat } from '../service/ApiService';
+import { setSelectedTickets } from '../states/authenticationSlice';
+import { useDispatch } from 'react-redux';
+import { getSelectedTickets } from '../helper/Helper';
 
-export default function SeatView({coachs, tripRouteId}) {
+export default function SeatView({coachs, tripRouteId, isEnableAutoSelect}) {
+
+  const dispatch = useDispatch();
+  const selected_Tickets = getSelectedTickets();
 
   const [selectedCoach, setSelectedCoach] = useState("");
   const [seatList, setSeatList] = useState([]);
-  const [selectedSeat, setSelectedSeat] = useState([]);
+  const [selectedSeat, setSelectedSeat] = useState(selected_Tickets);
 
   useEffect(()=>{
     let is_coach_selected = false;
@@ -15,13 +21,15 @@ export default function SeatView({coachs, tripRouteId}) {
           setSelectedCoach(coach?.floor_name);
           is_coach_selected = true;
         }
-        coach?.layout?.map((l) => {
-          l?.map((s) => {
-            if(s?.seat_availability === 1){
-              handleSeatClick(s.ticket_id);
-            }
-          })
-        })
+        if(isEnableAutoSelect){
+          coach?.layout?.map((l) => {
+            l?.map((s) => {
+              if(s?.seat_availability === 1){
+                handleSeatClick(s?.ticket_id, s?.seat_number);
+              }
+            })
+          });
+        }
       }
     });
   },[coachs]);
@@ -31,23 +39,29 @@ export default function SeatView({coachs, tripRouteId}) {
     setSeatList(coach?.layout);
   },[selectedCoach]);
 
-  const handleSeatClick = async (ticket_id) => {
+  const handleSeatClick = async (ticket_id, seat_number) => {
     const selected = selectedSeat.find((s) => s.ticket_id === ticket_id);
 
     const payload = {
       ticket_id: ticket_id,
-      route_id: tripRouteId
+      route_id: tripRouteId,
+      seat_number : seat_number,
     };
 
     if (selected) {
       const response = await unselectSeat(payload);
-      if (response?.status === 200) {
-        setSelectedSeat((prev) => prev.filter((s) => s.ticket_id !== ticket_id));
-      }
+      setSelectedSeat((prev) => {
+        const current_selected = prev.filter((s) => s.ticket_id !== ticket_id);
+        dispatch(setSelectedTickets(current_selected));
+        return current_selected;
+      })
     } else {
       const response = await selectSeat(payload);
       if (response?.status === 200) {
-        setSelectedSeat((prev) => [...prev, payload]);
+        setSelectedSeat((prev) => {
+          dispatch(setSelectedTickets([...prev, payload]));
+          return [...prev, payload];
+        });
       }
     }
   };
@@ -78,12 +92,12 @@ export default function SeatView({coachs, tripRouteId}) {
         <div className='grid grid-cols-1 md:grid-cols-2 bg-[#F1F1F1] px-2 py-1 rounded-md'>
           <div className='col-span-1'>
             {seatList?.slice(0,9)?.map((seat_line, index) => (
-              <div className='flex items-center gap-3 mt-1'>
+              <div key={"left"+index} className='flex items-center gap-3 mt-1'>
                 {seat_line?.map((seat, _index) => (
                   seat?.seat_number?.length > 0 ?
                   <button
-                    onClick={() => handleSeatClick(seat.ticket_id)} 
-                    key={index+_index} 
+                    onClick={() => handleSeatClick(seat.ticket_id, seat?.seat_number)} 
+                    key={"seat"+_index} 
                     className={
                       'w-[34px] min-h-[36px] px-1 py-1 border rounded-md text-[10px] ' + 
                       (isSeatSelected(seat.ticket_id) ? 'bg-[#384c6b] text-white' :
@@ -97,18 +111,18 @@ export default function SeatView({coachs, tripRouteId}) {
                     {seat?.seat_number}
                   </button>
                   :
-                  <div className='h-[32px] w-[32px]'></div>
+                  <div key={"seat"+_index}  className='h-[32px] w-[32px]'></div>
                 ))}
               </div>
             ))}
           </div>
           <div className='col-span-1'>
             {seatList?.slice(10)?.map((seat_line, index) => (
-              <div className='flex items-center gap-3 mt-1'>
+              <div key={"left"+index} className='flex items-center gap-3 mt-1'>
                 {seat_line?.map((seat, _index) => (
                   seat?.seat_number?.length > 0 ?
                   <button 
-                    onClick={() => handleSeatClick(seat.ticket_id)} 
+                    onClick={() => handleSeatClick(seat.ticket_id, seat?.seat_number)} 
                     key={index+_index} 
                     className={
                       'w-[34px] min-h-[36px] px-1 py-1 border rounded-md text-[10px] ' + 
@@ -123,7 +137,7 @@ export default function SeatView({coachs, tripRouteId}) {
                     {seat?.seat_number}
                   </button>
                   :
-                  <div className='h-[32px] w-[32px]'></div>
+                  <div key={"seat"+_index}  className='h-[32px] w-[32px]'></div>
                 ))}
               </div>
             ))}

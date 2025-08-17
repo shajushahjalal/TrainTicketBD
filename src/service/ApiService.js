@@ -25,7 +25,7 @@ const unselectSeat = async(payload) => {
 const passengerDetails = async(payload) => {
     return await axios.post(api.passenger_details, payload);
 }
-const VerifyOtp = async(payload) => {
+const verifyOtp = async(payload) => {
     return await axios.post(api.verify_otp, payload);
 }
 const confirmTicket = async(payload) => {
@@ -41,6 +41,6 @@ export {
     selectSeat,
     unselectSeat,
     passengerDetails,
-    VerifyOtp,
+    verifyOtp,
     confirmTicket
 }

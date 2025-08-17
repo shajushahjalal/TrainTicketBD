@@ -7,7 +7,7 @@ export const authenticationSlice = createSlice({
       api_token : "",
       user_date : {},
       settings : {},
-      ticketInfo : {}  
+      selected_tckets : []  
     },
     reducers: {
       login : (state, action) => {
@@ -22,8 +22,9 @@ export const authenticationSlice = createSlice({
         state.user_date = action.payload;
         localStorage.setItem("user_date", JSON.stringify(action.payload));
       },
-      setTicketInfo : (state, action) => {
-        state.ticketInfo = action.payload;
+      setSelectedTickets : (state, action) => {
+        state.selected_tckets = action.payload;
+        localStorage.setItem("selected_tckets", JSON.stringify(action.payload));
       },
       logout: (state) => {
         state.api_token = "";
@@ -35,5 +36,5 @@ export const authenticationSlice = createSlice({
     },
   });
   
-  export const { login, logout, setSettings, setUserData } = authenticationSlice.actions;
+  export const { login, logout, setSettings, setUserData, setSelectedTickets } = authenticationSlice.actions;
   export default authenticationSlice.reducer;

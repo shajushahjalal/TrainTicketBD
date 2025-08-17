@@ -1,5 +1,6 @@
 import axios from "axios";
 import { startLoading, stopLoading } from "../components/Loader/loadingBar";
+import { message } from "../helper/Helper";
 
 const base_url = "http://127.0.0.1:8000/api";
 // const base_url = "https://backticlet.smshaju.com/api";
@@ -23,7 +24,7 @@ axios.interceptors.response.use(response => {
 },
 error => {
     stopLoading();
-    return error?.response?.data;
+    message(error?.response?.data?.error?.messages[0] ?? "Unprocessable Content", true);
 });
 
 export default axios;

@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from 'react'
-import { seatLayout } from '../service/ApiService';
+import { passengerDetails, seatLayout } from '../service/ApiService';
 import SeatView from './SeatView';
+import { getSelectedTickets } from '../helper/Helper';
 
 export default function TrainList({trains = []}) {
 
+  const selectedTickets = getSelectedTickets();
   const [coachs, setCoachs] = useState();
   const [viewTrainSeat, setViewTrainSeat] = useState("");
   const [tripId, setTripId] = useState(0);
   const [tripRouteId, setTripRouteId] = useState(0);
+  const [isEnableAutoSelect, setIsEnableAutoSelect] = useState(false);
+  const [isOtpSend, setIsOtpSend] = useState(false);
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [verifiedOtp, setVerifiedOtp] = useState("");
 
   useEffect(()=>{
     setCoachs([]);
@@ -25,6 +31,17 @@ export default function TrainList({trains = []}) {
     const response = await seatLayout(payload);
     if(response?.status == 200){
       setCoachs(response?.data?.data?.seatLayout);
+    }
+  }
+
+  const handlePurchaseBtnClick = async() => {
+    try{
+      const response = passengerDetails();
+      if(response?.status == 200){
+        setIsOtpSend(true);
+      }
+    }catch(error){
+
     }
   }
 
@@ -49,20 +66,64 @@ export default function TrainList({trains = []}) {
 
                   <button 
                     className={'text-white px-2 rounded-lg mt-2 ' + (tripId == seat?.trip_id ? 'bg-green-400' : 'bg-green-800')}
-                    onClick={()=> showSeatLayput(seat, train)}
+                    onClick={()=> {
+                      setIsEnableAutoSelect(false);
+                      showSeatLayput(seat, train);
+                    }}
                   >
                     Book Now
+                  </button>
+                   <button 
+                    className={'text-white px-2 rounded-lg mt-2 ml-2 ' + (tripId == seat?.trip_id ? 'bg-green-400' : 'bg-teal-500')}
+                    onClick={()=> {
+                      setIsEnableAutoSelect(true);
+                      showSeatLayput(seat, train);
+                    }}
+                  >
+                    Auto Book Now
                   </button>
                 </div>
               ))}
             </div>
             <div className='w-full'>
               {(coachs?.length > 0 && viewTrainSeat == train?.trip_number) &&
-              <div className='grid grid-cols-1 md:grid-cols-3'>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
                 <div className='col-span-2'>
-                  <SeatView coachs={coachs} tripRouteId={tripRouteId} />
+                  <SeatView coachs={coachs} tripRouteId={tripRouteId} isEnableAutoSelect={isEnableAutoSelect}/>
                 </div>
-                <div className='col-span-1'>ddd</div>
+                <div className='col-span-1'>
+                  <div className='w-full mt-3 mb-1 border p-3 rounded-lg border-green-800'>
+                    <h3 className='font-bold'>Selected Seats</h3>
+                    <hr  className='mt-1 mb-1'/>
+                    <div className='grid grid-cols-2 gap-3'>
+                      {selectedTickets?.map((ticket, index) => (
+                        <div key={index}  className='col-span-1 mt-1 bg-[#384c6b] text-white rounded-lg px-3 py-2'>{ticket?.seat_number}</div>
+                      ))}
+
+                      {selectedTickets?.length > 0 &&
+                        <> 
+                          {isOtpSend ?
+                            <>
+                              <input 
+                                type='text' 
+                                className='h-10 w-full rounded-md' 
+                                placeholder='OTP'
+                                onChange={(e) => setVerifiedOtp(e.target.value)}
+                              />
+                            </>
+                          :
+                            <button 
+                              onClick={handlePurchaseBtnClick}
+                              className='col-span-2 bg-green-800 text-white px-2 py-2 rounded-lg mt-2'
+                            >
+                              Purchase
+                            </button>
+                          }
+                        </>
+                      }
+                    </div>
+                  </div>
+                </div>
               </div>
               }
             </div>  
