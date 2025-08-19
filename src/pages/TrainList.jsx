@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { passengerDetails, seatLayout } from '../service/ApiService';
+import { passengerDetails, seatLayout, verifyOtp, bulkUnselectSeat } from '../service/ApiService';
 import SeatView from './SeatView';
 import { getSelectedTickets } from '../helper/Helper';
+import { FaRegTimesCircle, FaTimes } from "react-icons/fa";
+import { useDispatch } from 'react-redux';
+import { setSelectedTickets } from '../states/authenticationSlice';
 
 export default function TrainList({trains = []}) {
 
+  const dispatch = useDispatch();
   const selectedTickets = getSelectedTickets();
   const [coachs, setCoachs] = useState();
   const [viewTrainSeat, setViewTrainSeat] = useState("");
@@ -13,7 +17,7 @@ export default function TrainList({trains = []}) {
   const [isEnableAutoSelect, setIsEnableAutoSelect] = useState(false);
   const [isOtpSend, setIsOtpSend] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
-  const [verifiedOtp, setVerifiedOtp] = useState("");
+  const [otp, setOtp] = useState("");
 
   useEffect(()=>{
     setCoachs([]);
@@ -30,19 +34,63 @@ export default function TrainList({trains = []}) {
     }
     const response = await seatLayout(payload);
     if(response?.status == 200){
+      setIsOtpSend(false);
       setCoachs(response?.data?.data?.seatLayout);
     }
   }
 
   const handlePurchaseBtnClick = async() => {
     try{
-      const response = passengerDetails();
+      const payload = {
+        "trip_id" : tripId,
+        "trip_route_id" : tripRouteId,
+        "ticket_ids" : selectedTickets.map((ticket) => { return ticket.ticket_id })
+      }
+      const response = await passengerDetails(payload);
       if(response?.status == 200){
         setIsOtpSend(true);
       }
     }catch(error){
 
     }
+  }
+
+  const handleResendOpt = async() => {
+    
+  }
+
+  const clearSelection = async() => {
+    if(confirm("Are you clear all selected seat?")){
+      const payload = {
+        "route_id" : tripRouteId,
+        "ticket_id" : selectedTickets.map((ticket) => { return ticket.ticket_id })
+      }
+      await bulkUnselectSeat(payload);
+      dispatch(setSelectedTickets([]));
+    }
+  }
+
+  const handleVerifyOtp = async() => {
+    try{
+      const payload = {
+        "trip_id" : tripId,
+        "trip_route_id" : tripRouteId,
+        "otp" : otp,
+        "ticket_ids" : selectedTickets.map((ticket) => { return ticket.ticket_id })
+      }
+      const response = await verifyOtp(payload);
+      if(response?.status == 200){
+        setIsOtpSend(true);
+      }else{
+        console.log("------response----", response)
+      }
+    }catch(error){
+
+    }
+  }
+
+  const confirmTicket = async() => {
+    
   }
 
   return (
@@ -93,23 +141,46 @@ export default function TrainList({trains = []}) {
                 </div>
                 <div className='col-span-1'>
                   <div className='w-full mt-3 mb-1 border p-3 rounded-lg border-green-800'>
-                    <h3 className='font-bold'>Selected Seats</h3>
+                    <div className=' w-full relative'>
+                      <h3 className='font-bold'>Selected Seats</h3>
+                      {selectedTickets?.length > 0 &&
+                        <button 
+                          className='absolute right-1 top-0'
+                          onClick={clearSelection}
+                        >
+                          <FaTimes className='text-red-500 text-lg'/>
+                        </button>
+                      }
+                    </div>
                     <hr  className='mt-1 mb-1'/>
                     <div className='grid grid-cols-2 gap-3'>
                       {selectedTickets?.map((ticket, index) => (
                         <div key={index}  className='col-span-1 mt-1 bg-[#384c6b] text-white rounded-lg px-3 py-2'>{ticket?.seat_number}</div>
                       ))}
-
                       {selectedTickets?.length > 0 &&
                         <> 
                           {isOtpSend ?
                             <>
                               <input 
                                 type='text' 
-                                className='h-10 w-full rounded-md' 
+                                className='col-span-2 h-10 w-full rounded-md px-2 border border-green-800' 
                                 placeholder='OTP'
-                                onChange={(e) => setVerifiedOtp(e.target.value)}
+                                onChange={(e) => setOtp(e.target.value)}
                               />
+
+                              <button 
+                                onClick={handleResendOpt}
+                                className='col-span-2 text-yellow-700 mt-1'
+                              >
+                                Resend OTP
+                              </button>
+                              
+                              <button 
+                                onClick={handleVerifyOtp}
+                                className='col-span-2 bg-teal-500 text-white px-2 py-2 rounded-lg'
+                              >
+                                Verify OTP
+                              </button>
                             </>
                           :
                             <button 

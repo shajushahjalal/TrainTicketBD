@@ -11,7 +11,11 @@ export default function SeatView({coachs, tripRouteId, isEnableAutoSelect}) {
 
   const [selectedCoach, setSelectedCoach] = useState("");
   const [seatList, setSeatList] = useState([]);
-  const [selectedSeat, setSelectedSeat] = useState(selected_Tickets);
+  const [selectedSeat, setSelectedSeat] = useState();
+
+  useEffect(()=>{
+    setSelectedSeat(selected_Tickets)
+  },[selected_Tickets]);
 
   useEffect(()=>{
     let is_coach_selected = false;

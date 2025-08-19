@@ -22,6 +22,9 @@ const selectSeat = async(payload) => {
 const unselectSeat = async(payload) => {
     return await axios.post(api.unselect_seat, payload);
 }
+const bulkUnselectSeat = async(payload) => {
+    return await axios.post(api.bulk_unselect_seat, payload);
+}
 const passengerDetails = async(payload) => {
     return await axios.post(api.passenger_details, payload);
 }
@@ -42,5 +45,6 @@ export {
     unselectSeat,
     passengerDetails,
     verifyOtp,
-    confirmTicket
+    confirmTicket,
+    bulkUnselectSeat
 }
