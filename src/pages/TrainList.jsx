@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { passengerDetails, seatLayout, verifyOtp, bulkUnselectSeat } from '../service/ApiService';
+import { passengerDetails, seatLayout, verifyOtp, bulkUnselectSeat, confirmTicket } from '../service/ApiService';
 import SeatView from './SeatView';
-import { useSelectedTickets, useUserData } from '../helper/Helper';
+import { message, useSelectedTickets, useUserData } from '../helper/Helper';
 import { FaRegTimesCircle, FaTimes } from "react-icons/fa";
 import { useDispatch } from 'react-redux';
 import { setSelectedTickets } from '../states/authenticationSlice';
@@ -33,7 +33,9 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
     setBoardingPointId(train.boarding_points[0]?.trip_point_id)
     setViewTrainSeat(train?.trip_number);
     setTripRouteId(seat?.trip_route_id);
-    setTripId(seat?.trip_id)
+    setTripId(seat?.trip_id);
+    setOtp("");
+    setIsOtpVerified(false);
     const payload = {
       trip_id : seat?.trip_id,
       trip_route_id : seat?.trip_route_id
@@ -87,8 +89,9 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
       const response = await verifyOtp(payload);
       if(response?.status == 200){
         setIsOtpSend(true);
+        setIsOtpVerified(true);
       }else{
-        console.log("------response----", response)
+        //
       }
     }catch(error){
 
@@ -134,7 +137,7 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
       "from_city": from_city,
       "gender": values?.gender,
       "passengerType": values?.passengerType,
-      "pemail": userData?.display_name,
+      "pemail": userData?.email,
       "pmobile": userData?.phone_number,
       "pname": values?.pname,
       "ticket_ids" : values?.ticket_ids,
@@ -149,7 +152,12 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
       "selected_mobile_transaction": 1
     }
 
-    console.log("---------confirm-ticket-payload---------",payload)
+    const response = await confirmTicket(payload);
+    if(response?.status == 200){
+      message(response?.data?.data?.message ?? "Booking Confirm");
+      const paymentUrl = response?.data?.data?.redirectUrl;
+      window.open(paymentUrl);
+    }
   
   }
 
@@ -254,7 +262,7 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
                         </>
                       }
 
-                      {selectedTickets?.length > 0 && // isOtpVerified &&
+                      {selectedTickets?.length > 0 && isOtpVerified &&
                         <div className='col-span-2'>
                           <h3 className='font-bold my-1 text-lg'>Passenger Details</h3>
                           <hr className='py-1' />
