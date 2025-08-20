@@ -1,23 +1,28 @@
 import React, { useEffect, useState } from 'react'
 import { passengerDetails, seatLayout, verifyOtp, bulkUnselectSeat } from '../service/ApiService';
 import SeatView from './SeatView';
-import { getSelectedTickets } from '../helper/Helper';
+import { useSelectedTickets, useUserData } from '../helper/Helper';
 import { FaRegTimesCircle, FaTimes } from "react-icons/fa";
 import { useDispatch } from 'react-redux';
 import { setSelectedTickets } from '../states/authenticationSlice';
+import { ErrorMessage, Field, FieldArray, Form, Formik } from 'formik';
+import * as Yup from 'yup';
 
-export default function TrainList({trains = []}) {
+export default function TrainList({trains = [], from_city, to_city, date_of_journey, seat_class}) {
 
   const dispatch = useDispatch();
-  const selectedTickets = getSelectedTickets();
+  const selectedTickets = useSelectedTickets();
+  const userData = useUserData();
   const [coachs, setCoachs] = useState();
   const [viewTrainSeat, setViewTrainSeat] = useState("");
   const [tripId, setTripId] = useState(0);
   const [tripRouteId, setTripRouteId] = useState(0);
+  const [boardingPointId, setBoardingPointId] = useState(0);
   const [isEnableAutoSelect, setIsEnableAutoSelect] = useState(false);
   const [isOtpSend, setIsOtpSend] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const [otp, setOtp] = useState("");
+
 
   useEffect(()=>{
     setCoachs([]);
@@ -25,6 +30,7 @@ export default function TrainList({trains = []}) {
 
   const showSeatLayput = async(seat, train) => {
     setCoachs([]);
+    setBoardingPointId(train.boarding_points[0]?.trip_point_id)
     setViewTrainSeat(train?.trip_number);
     setTripRouteId(seat?.trip_route_id);
     setTripId(seat?.trip_id)
@@ -89,8 +95,62 @@ export default function TrainList({trains = []}) {
     }
   }
 
-  const confirmTicket = async() => {
-    
+
+  const initialValues = {
+    ticket_ids: selectedTickets.map(t => t.ticket_id),
+    pname: selectedTickets.map(() => ""),
+    passengerType: selectedTickets.map(() => ""),
+    gender: selectedTickets.map(() => ""),
+  };
+
+  const validationSchema = Yup.object().shape({
+    pname: Yup.array().of(
+      Yup.string().trim()
+        .required("Passenger name is required")
+        .min(2, "Name must be at least 2 characters")
+    )
+    .required(),
+    gender: Yup.array().of(
+      Yup.string()
+        .oneOf(["male", "female"], "Invalid gender")
+        .required("Gender is required")
+    )
+    .required(),
+    passengerType: Yup.array().of(
+      Yup.string()
+        .oneOf(["Adult", "Child"], "Invalid Selection")
+        .required("Passenger type is required")
+    )
+    .required(),
+  })
+
+  const handleConfirmTicket = async(values) => {
+  
+    let payload = {
+      "is_bkash_online": true,
+      "boarding_point_id": boardingPointId,
+      "contactperson": 0,
+      "date_of_journey": date_of_journey,
+      "from_city": from_city,
+      "gender": values?.gender,
+      "passengerType": values?.passengerType,
+      "pemail": userData?.display_name,
+      "pmobile": userData?.phone_number,
+      "pname": values?.pname,
+      "ticket_ids" : values?.ticket_ids,
+      "priyojon_order_id": null,
+      "referral_mobile_number": null,
+      "seat_class": seat_class,
+      "to_city": to_city,
+      "trip_id": tripId,
+      "trip_route_id": tripRouteId,
+      "enable_sms_alert": 0,
+      "otp": otp,
+      "selected_mobile_transaction": 1
+    }
+
+    console.log("---------confirm-ticket-payload---------",payload)
+  
   }
 
   return (
@@ -137,7 +197,7 @@ export default function TrainList({trains = []}) {
               {(coachs?.length > 0 && viewTrainSeat == train?.trip_number) &&
               <div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
                 <div className='col-span-2'>
-                  <SeatView coachs={coachs} tripRouteId={tripRouteId} isEnableAutoSelect={isEnableAutoSelect}/>
+                  <SeatView coachs={coachs} tripRouteId={tripRouteId} isEnableAutoSelect={isEnableAutoSelect} />
                 </div>
                 <div className='col-span-1'>
                   <div className='w-full mt-3 mb-1 border p-3 rounded-lg border-green-800'>
@@ -157,6 +217,7 @@ export default function TrainList({trains = []}) {
                       {selectedTickets?.map((ticket, index) => (
                         <div key={index}  className='col-span-1 mt-1 bg-[#384c6b] text-white rounded-lg px-3 py-2'>{ticket?.seat_number}</div>
                       ))}
+
                       {selectedTickets?.length > 0 &&
                         <> 
                           {isOtpSend ?
@@ -191,6 +252,79 @@ export default function TrainList({trains = []}) {
                             </button>
                           }
                         </>
+                      }
+
+                      {selectedTickets?.length > 0 && // isOtpVerified &&
+                        <div className='col-span-2'>
+                          <h3 className='font-bold my-1 text-lg'>Passenger Details</h3>
+                          <hr className='py-1' />
+                          <Formik
+                            initialValues={initialValues}
+                            validationSchema={validationSchema}
+                            enableReinitialize={true}
+                            onSubmit={(values) => handleConfirmTicket(values)}
+                          >
+                            {({ values }) => (
+                              <Form className="space-y-3">
+                                
+                                <FieldArray name="pname">
+                                  {() =>
+                                    values.ticket_ids.map((ticketId, index) => (
+                                      <div key={ticketId} className="border border-green-700 p-3 rounded-lg mb-3">
+                                        <div className='relative'>
+                                          <h3 className="font-bold">Ticket #{ticketId}</h3>
+                                          {/* <button type='button' className='absolute right-1 top-0' onClick={() => remove(index)}>
+                                            <FaTimes className='text-red-500' />
+                                          </button> */}
+                                        </div>
+                                        <div className='w-full'>
+                                          <label className='mb-1'>Passenger Name</label>
+                                          <Field
+                                            name={`pname[${index}]`}
+                                            placeholder="Passenger Name"
+                                            className="border px-3 py-1 w-full h-8 rounded-md"
+                                          />
+                                          <p className='text-red-500'>
+                                            <ErrorMessage  name={`pname[${index}]`} />
+                                          </p>
+                                        </div>
+                                        <div className='w-full justify-between flex gap-3 mt-2'>
+                                          <div className='w-1/2'>
+                                            <label className='mb-1'>Passenger Type</label>
+                                            <Field as="select" name={`passengerType[${index}]`} className="w-full h-8 px-3 py-1 rounded-md">
+                                              <option value="">Select</option>
+                                              <option value="Adult">Adult</option>
+                                              <option value="Child">Child</option>
+                                            </Field>
+                                            <p className='text-red-500'>
+                                              <ErrorMessage name={`passengerType[${index}]`} />
+                                            </p>
+                                          </div>
+
+                                          <div className='w-1/2'>
+                                            <label className='mb-1'>Gender</label>
+                                            <Field as="select" name={`gender[${index}]`} className="w-full h-8 px-3 py-1 rounded-md">
+                                              <option value="">Select</option>
+                                              <option value="male">Male</option>
+                                              <option value="female">Female</option>
+                                            </Field>
+                                            <p className='text-red-500'>
+                                              <ErrorMessage  name={`gender[${index}]`} />
+                                            </p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))
+                                  }
+                                </FieldArray>
+
+                                <button type="submit" className="bg-green-800 text-white px-4 py-2 rounded-lg w-full">
+                                  Confirm Ticket
+                                </button>
+                              </Form>
+                            )}
+                          </Formik>
+                        </div>
                       }
                     </div>
                   </div>

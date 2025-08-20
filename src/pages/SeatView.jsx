@@ -2,30 +2,29 @@ import React, { useEffect, useState } from 'react'
 import { selectSeat, unselectSeat } from '../service/ApiService';
 import { setSelectedTickets } from '../states/authenticationSlice';
 import { useDispatch } from 'react-redux';
-import { getSelectedTickets } from '../helper/Helper';
+import { useSelectedTickets } from '../helper/Helper';
 
 export default function SeatView({coachs, tripRouteId, isEnableAutoSelect}) {
 
   const dispatch = useDispatch();
-  const selected_Tickets = getSelectedTickets();
+  const selected_Tickets = useSelectedTickets();
 
   const [selectedCoach, setSelectedCoach] = useState("");
   const [seatList, setSeatList] = useState([]);
-  const [selectedSeat, setSelectedSeat] = useState();
+  const [selectedSeat, setSelectedSeat] = useState([]);
+
+  // useEffect(()=>{
+  //   setSelectedSeat(selected_Tickets)
+  // },[selected_Tickets]);
 
   useEffect(()=>{
-    setSelectedSeat(selected_Tickets)
-  },[selected_Tickets]);
-
-  useEffect(()=>{
-    let is_coach_selected = false;
-    coachs?.map((coach)=>{
-      if(coach?.seat_availability){
-        if(!is_coach_selected){
-          setSelectedCoach(coach?.floor_name);
-          is_coach_selected = true;
-        }
-        if(isEnableAutoSelect){
+    const firstAvailableCoach = coachs.find(c => c?.seat_availability);
+    if (firstAvailableCoach) {
+      setSelectedCoach(firstAvailableCoach.floor_name);
+    }
+    if(isEnableAutoSelect){
+      coachs?.map((coach)=>{
+        if(coach?.seat_availability){
           coach?.layout?.map((l) => {
             l?.map((s) => {
               if(s?.seat_availability === 1){
@@ -34,8 +33,9 @@ export default function SeatView({coachs, tripRouteId, isEnableAutoSelect}) {
             })
           });
         }
-      }
-    });
+      })
+          
+    }
   },[coachs]);
 
   useEffect(()=>{

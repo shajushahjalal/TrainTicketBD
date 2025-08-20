@@ -7,14 +7,14 @@ import { IoSettingsOutline } from 'react-icons/io5'
 import { FaRegBell } from 'react-icons/fa'
 import { useTheme } from '../../context/ThemeContext';
 import { useState } from 'react'
-import { getUserData } from '../../helper/Helper'
+import { useUserData } from '../../helper/Helper'
 import Login from '../../pages/Login'
 import { logout } from '../../states/authenticationSlice'
 import { useDispatch } from 'react-redux'
 
 export default function Header() {
 
-  const userData = getUserData()
+  const userData = useUserData()
   const dispatch = useDispatch();
   const { theme, toggleTheme } = useTheme();
   const [showUserDropdown, setShowUserDropdown] = useState(false);

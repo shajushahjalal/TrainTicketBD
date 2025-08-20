@@ -13,11 +13,11 @@ export const getAuthenticateToken = () => {
     return useSelector((state) => state.authentication.api_token) || localStorage.getItem("api_token")
 }
 
-export const getUserData = () => {
+export const useUserData = () => {
     return useSelector((state) => state.authentication.user_date);
 }
 
-export const getSelectedTickets = () => {
+export const useSelectedTickets = () => {
     let selected_tickets =  useSelector((state) => state.authentication.selected_tckets);
     if(selected_tickets?.length == 0){
         selected_tickets = localStorage.getItem("selected_tckets") ? JSON.parse(localStorage.getItem("selected_tckets")) : [];

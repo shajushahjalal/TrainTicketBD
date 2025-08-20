@@ -157,7 +157,7 @@ export default function Index() {
 
       <div className='w-full bg-gray-100 my-3 rounded-lg'>
         {availableTrains?.length > 0 &&
-          <TrainList trains={availableTrains} />
+          <TrainList trains={availableTrains} from_city={formStation} to_city={toStation} date_of_journey={date} seat_class={seatClass}/>
         }
       </div>
 
