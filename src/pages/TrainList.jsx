@@ -10,6 +10,7 @@ import * as Yup from 'yup';
 
 export default function TrainList({trains = [], from_city, to_city, date_of_journey, seat_class}) {
 
+  const totalTimeMin = 5;
   const dispatch = useDispatch();
   const selectedTickets = useSelectedTickets();
   const userData = useUserData();
@@ -22,7 +23,7 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
   const [isOtpSend, setIsOtpSend] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const [otp, setOtp] = useState("");
-
+  const [remainTimeCounr, setRemainTimeCounr] = useState();
 
   useEffect(()=>{
     setCoachs([]);
@@ -57,14 +58,43 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
       const response = await passengerDetails(payload);
       if(response?.status == 200){
         setIsOtpSend(true);
+        startRemainTimerCount();
       }
     }catch(error){
 
     }
   }
 
+  const startRemainTimerCount = () => {
+    let remainTime = totalTimeMin * 60;
+    const interval = setInterval(() => {
+      remainTime -= 1;
+      if (remainTime <= 0) {
+        clearInterval(interval);
+        setRemainTimeCounr("00:00");
+        return;
+      }
+      const minutes = Math.floor(remainTime / 60);
+      const seconds = remainTime % 60;
+      const time = String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0')
+      setRemainTimeCounr(time);
+    }, 1000);
+  };
+
   const handleResendOpt = async() => {
-    
+    try{
+      const payload = {
+        "trip_id" : tripId,
+        "trip_route_id" : tripRouteId,
+        "ticket_ids" : selectedTickets.map((ticket) => { return ticket.ticket_id })
+      }
+      const response = await resendOtp(payload);
+      if(response?.status == 200){
+        setIsOtpSend(true);
+      }
+    }catch(error){
+
+    }
   }
 
   const clearSelection = async() => {
@@ -75,6 +105,9 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
       }
       await bulkUnselectSeat(payload);
       dispatch(setSelectedTickets([]));
+      setIsOtpSend(false);
+      setIsOtpVerified(false);
+      setOtp("");
     }
   }
 
@@ -226,10 +259,16 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
                         <div key={index}  className='col-span-1 mt-1 bg-[#384c6b] text-white rounded-lg px-3 py-2'>{ticket?.seat_number}</div>
                       ))}
 
-                      {selectedTickets?.length > 0 &&
+                      {isOtpSend &&
+                        <div className='w-full my-1 col-span-2'>
+                          <h3 className='text-lg font-bold text-red-500'>{remainTimeCounr}</h3>
+                        </div>
+                      }
+
+                      {selectedTickets?.length > 0 && !isOtpVerified &&
                         <> 
                           {isOtpSend ?
-                            <>
+                            <>                            
                               <input 
                                 type='text' 
                                 className='col-span-2 h-10 w-full rounded-md px-2 border border-green-800' 

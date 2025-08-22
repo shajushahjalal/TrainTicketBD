@@ -9,6 +9,7 @@ export const api = {
     unselect_seat : "/release-seat",
     bulk_unselect_seat : "/bulk-release-seat",
     passenger_details : "/passenger-details",
+    resend_otp : "/resend-otp",
     verify_otp : "/verify-otp",
     confirm_ticket : "/confirm-ticket",
 };
