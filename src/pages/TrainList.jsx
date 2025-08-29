@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { passengerDetails, seatLayout, verifyOtp, bulkUnselectSeat, confirmTicket, seatLayoutWithAutoBooking } from '../service/ApiService';
+import { passengerDetails, seatLayout, verifyOtp, bulkUnselectSeat, confirmTicket, seatLayoutWithAutoBooking, unselectSeat } from '../service/ApiService';
 import SeatView from './SeatView';
 import { message, useSelectedTickets, useUserData } from '../helper/Helper';
 import { FaTimes } from "react-icons/fa";
@@ -329,9 +329,6 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
                                       <div key={ticketId} className="border border-green-700 p-3 rounded-lg mb-3">
                                         <div className='relative'>
                                           <h3 className="font-bold">Ticket #{ticketId}</h3>
-                                          {/* <button type='button' className='absolute right-1 top-0' onClick={() => remove(index)}>
-                                            <FaTimes className='text-red-500' />
-                                          </button> */}
                                         </div>
                                         <div className='w-full'>
                                           <label className='mb-1'>Passenger Name</label>

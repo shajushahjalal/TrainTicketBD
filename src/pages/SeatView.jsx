@@ -7,15 +7,9 @@ import { useSelectedTickets } from '../helper/Helper';
 export default function SeatView({coachs, tripRouteId, autoSelectedSeats}) {
 
   const dispatch = useDispatch();
-  const selected_Tickets = useSelectedTickets();
-
   const [selectedCoach, setSelectedCoach] = useState("");
   const [seatList, setSeatList] = useState([]);
   const [selectedSeat, setSelectedSeat] = useState([]);
-
-  // useEffect(()=>{
-  //   setSelectedSeat(selected_Tickets)
-  // },[selected_Tickets]);
 
   useEffect(()=>{
     const firstAvailableCoach = coachs.find(c => c?.seat_availability);
@@ -26,20 +20,6 @@ export default function SeatView({coachs, tripRouteId, autoSelectedSeats}) {
       setSelectedSeat(autoSelectedSeats);
       dispatch(setSelectedTickets(autoSelectedSeats));
     }
-    // if(isEnableAutoSelect){
-    //   coachs?.map((coach)=>{
-    //     if(coach?.seat_availability){
-    //       coach?.layout?.map((l) => {
-    //         l?.map((s) => {
-    //           if(s?.seat_availability === 1){
-    //             handleSeatClick(s?.ticket_id, s?.seat_number);
-    //           }
-    //         })
-    //       });
-    //     }
-    //   })
-          
-    // }
   },[coachs, autoSelectedSeats]);
 
   useEffect(()=>{
@@ -99,7 +79,7 @@ export default function SeatView({coachs, tripRouteId, autoSelectedSeats}) {
       <div className='w-full mt-5'>
         <div className='grid grid-cols-1 md:grid-cols-2 bg-[#F1F1F1] px-2 py-1 rounded-md'>
           <div className='col-span-1'>
-            {seatList?.slice(0,9)?.map((seat_line, index) => (
+            {seatList?.slice(0,10)?.map((seat_line, index) => (
               <div key={"left"+index} className='flex items-center gap-3 mt-1'>
                 {seat_line?.map((seat, _index) => (
                   seat?.seat_number?.length > 0 ?

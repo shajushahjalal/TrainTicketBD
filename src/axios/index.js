@@ -24,7 +24,7 @@ axios.interceptors.response.use(response => {
 },
 error => {
     stopLoading();
-    message(error?.response?.data?.error?.messages[0] ?? "Unprocessable Content", true);
+    message(error?.response?.data?.error?.messages?.error_msg ?? (error?.response?.data?.error?.messages[0] ?? "Unprocessable Content"), true);
 });
 
 export default axios;
