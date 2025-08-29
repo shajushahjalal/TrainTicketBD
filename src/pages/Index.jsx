@@ -138,8 +138,9 @@ export default function Index() {
               <label className='w-full'>Date</label>
               <input 
                 type='date' 
-                className='w-full h-10 px-3 bg-transparent border rounded-lg' 
+                className='w-full h-10 px-3 bg-white border rounded-lg ' 
                 min={moment(new Date()).format('YYYY-MM-DD')}
+                max={moment(new Date()).add(10, 'days').format('YYYY-MM-DD')}
                 onChange={(e)=>setDate(e.target.value)}
               />
             </div>
