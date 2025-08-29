@@ -4,7 +4,7 @@ import { setSelectedTickets } from '../states/authenticationSlice';
 import { useDispatch } from 'react-redux';
 import { useSelectedTickets } from '../helper/Helper';
 
-export default function SeatView({coachs, tripRouteId, isEnableAutoSelect}) {
+export default function SeatView({coachs, tripRouteId, autoSelectedSeats}) {
 
   const dispatch = useDispatch();
   const selected_Tickets = useSelectedTickets();
@@ -22,21 +22,25 @@ export default function SeatView({coachs, tripRouteId, isEnableAutoSelect}) {
     if (firstAvailableCoach) {
       setSelectedCoach(firstAvailableCoach.floor_name);
     }
-    if(isEnableAutoSelect){
-      coachs?.map((coach)=>{
-        if(coach?.seat_availability){
-          coach?.layout?.map((l) => {
-            l?.map((s) => {
-              if(s?.seat_availability === 1){
-                handleSeatClick(s?.ticket_id, s?.seat_number);
-              }
-            })
-          });
-        }
-      })
-          
+    if(autoSelectedSeats?.length > 0){
+      setSelectedSeat(autoSelectedSeats);
+      dispatch(setSelectedTickets(autoSelectedSeats));
     }
-  },[coachs]);
+    // if(isEnableAutoSelect){
+    //   coachs?.map((coach)=>{
+    //     if(coach?.seat_availability){
+    //       coach?.layout?.map((l) => {
+    //         l?.map((s) => {
+    //           if(s?.seat_availability === 1){
+    //             handleSeatClick(s?.ticket_id, s?.seat_number);
+    //           }
+    //         })
+    //       });
+    //     }
+    //   })
+          
+    // }
+  },[coachs, autoSelectedSeats]);
 
   useEffect(()=>{
     const coach = coachs?.find((c) => c?.floor_name == selectedCoach);

@@ -16,6 +16,9 @@ const searchTrain = async(payload) => {
 const seatLayout = async(payload) => {
     return await axios.post(api.seat_layout, payload);
 }
+const seatLayoutWithAutoBooking = async(payload) => {
+    return await axios.post(api.seat_layout_with_auto_booking, payload);
+}
 const selectSeat = async(payload) => {
     return await axios.post(api.select_seat, payload);
 }
@@ -50,5 +53,6 @@ export {
     verifyOtp,
     confirmTicket,
     bulkUnselectSeat,
-    resendOtp
+    resendOtp,
+    seatLayoutWithAutoBooking
 }

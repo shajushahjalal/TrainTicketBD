@@ -4,6 +4,7 @@ export const api = {
     profile : "/profile",
     search_train : "/available-train",
     seat_layout : "/show-seat",
+    seat_layout_with_auto_booking : "/show-seat-with-auto-reserve",
     select_seat : "/reserve-seat",
     unselect_seat : "/release-seat",
     unselect_seat : "/release-seat",

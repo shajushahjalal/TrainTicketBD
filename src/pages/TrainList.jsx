@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { passengerDetails, seatLayout, verifyOtp, bulkUnselectSeat, confirmTicket } from '../service/ApiService';
+import { passengerDetails, seatLayout, verifyOtp, bulkUnselectSeat, confirmTicket, seatLayoutWithAutoBooking } from '../service/ApiService';
 import SeatView from './SeatView';
 import { message, useSelectedTickets, useUserData } from '../helper/Helper';
-import { FaRegTimesCircle, FaTimes } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
 import { useDispatch } from 'react-redux';
 import { setSelectedTickets } from '../states/authenticationSlice';
 import { ErrorMessage, Field, FieldArray, Form, Formik } from 'formik';
@@ -19,17 +19,17 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
   const [tripId, setTripId] = useState(0);
   const [tripRouteId, setTripRouteId] = useState(0);
   const [boardingPointId, setBoardingPointId] = useState(0);
-  const [isEnableAutoSelect, setIsEnableAutoSelect] = useState(false);
   const [isOtpSend, setIsOtpSend] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const [otp, setOtp] = useState("");
   const [remainTimeCounr, setRemainTimeCounr] = useState();
+  const [autoSelectedSeats, setAutoSelectedSeats] = useState([]);
 
   useEffect(()=>{
     setCoachs([]);
   },[trains])
 
-  const showSeatLayput = async(seat, train) => {
+  const showSeatLayput = async(seat, train, auto_select = false) => {
     setCoachs([]);
     setBoardingPointId(train.boarding_points[0]?.trip_point_id)
     setViewTrainSeat(train?.trip_number);
@@ -41,10 +41,20 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
       trip_id : seat?.trip_id,
       trip_route_id : seat?.trip_route_id
     }
-    const response = await seatLayout(payload);
-    if(response?.status == 200){
-      setIsOtpSend(false);
-      setCoachs(response?.data?.data?.seatLayout);
+    if(auto_select === true){
+      const response = await seatLayoutWithAutoBooking(payload);
+      if(response?.status == 200){
+        setIsOtpSend(false);
+        setCoachs(response?.data?.data?.seatLayout);
+        setAutoSelectedSeats(response?.data?.selected_seats)
+      }
+    }else{
+      const response = await seatLayout(payload);
+      if(response?.status == 200){
+        setIsOtpSend(false);
+        setCoachs(response?.data?.data?.seatLayout);
+        setAutoSelectedSeats([]);
+      }
     }
   }
 
@@ -105,6 +115,7 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
       }
       await bulkUnselectSeat(payload);
       dispatch(setSelectedTickets([]));
+      setAutoSelectedSeats([]);
       setIsOtpSend(false);
       setIsOtpVerified(false);
       setOtp("");
@@ -216,7 +227,6 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
                   <button 
                     className={'text-white px-2 rounded-lg mt-2 ' + (tripId == seat?.trip_id ? 'bg-green-400' : 'bg-green-800')}
                     onClick={()=> {
-                      setIsEnableAutoSelect(false);
                       showSeatLayput(seat, train);
                     }}
                   >
@@ -225,8 +235,7 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
                    <button 
                     className={'text-white px-2 rounded-lg mt-2 ml-2 ' + (tripId == seat?.trip_id ? 'bg-green-400' : 'bg-teal-500')}
                     onClick={()=> {
-                      setIsEnableAutoSelect(true);
-                      showSeatLayput(seat, train);
+                      showSeatLayput(seat, train, true);
                     }}
                   >
                     Auto Book Now
@@ -238,7 +247,7 @@ export default function TrainList({trains = [], from_city, to_city, date_of_jour
               {(coachs?.length > 0 && viewTrainSeat == train?.trip_number) &&
               <div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
                 <div className='col-span-2'>
-                  <SeatView coachs={coachs} tripRouteId={tripRouteId} isEnableAutoSelect={isEnableAutoSelect} />
+                  <SeatView coachs={coachs} tripRouteId={tripRouteId} autoSelectedSeats={autoSelectedSeats} />
                 </div>
                 <div className='col-span-1'>
                   <div className='w-full mt-3 mb-1 border p-3 rounded-lg border-green-800'>
