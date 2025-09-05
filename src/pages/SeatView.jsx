@@ -77,8 +77,8 @@ export default function SeatView({coachs, tripRouteId, autoSelectedSeats}) {
         ))}
       </div>
       <div className='w-full mt-5'>
-        <div className='grid grid-cols-1 md:grid-cols-2 bg-[#F1F1F1] px-2 py-1 rounded-md'>
-          <div className='col-span-1'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-3 '>
+          <div className='col-span-1 bg-[#F1F1F1] px-3 py-2 rounded-md'>
             {seatList?.slice(0,10)?.map((seat_line, index) => (
               <div key={"left"+index} className='flex items-center gap-3 mt-1'>
                 {seat_line?.map((seat, _index) => (
@@ -90,7 +90,7 @@ export default function SeatView({coachs, tripRouteId, autoSelectedSeats}) {
                       'w-[34px] min-h-[36px] px-1 py-1 border rounded-md text-[10px] ' + 
                       (isSeatSelected(seat.ticket_id) ? 'bg-[#384c6b] text-white' :
                       (
-                        seat?.seat_availability === 1 ? 'border-green-800' : 
+                        seat?.seat_availability === 1 ? 'border-green-800 bg-white' : 
                         (seat?.seat_availability === 2 ? 'bg-green-700 text-white' :
                         'bg-yellow-600 text-white')
                       ))
@@ -104,7 +104,7 @@ export default function SeatView({coachs, tripRouteId, autoSelectedSeats}) {
               </div>
             ))}
           </div>
-          <div className='col-span-1'>
+          <div className='col-span-1 bg-[#F1F1F1] px-3 py-2 rounded-md'>
             {seatList?.slice(10)?.map((seat_line, index) => (
               <div key={"left"+index} className='flex items-center gap-3 mt-1'>
                 {seat_line?.map((seat, _index) => (
@@ -116,7 +116,7 @@ export default function SeatView({coachs, tripRouteId, autoSelectedSeats}) {
                       'w-[34px] min-h-[36px] px-1 py-1 border rounded-md text-[10px] ' + 
                       (isSeatSelected(seat.ticket_id) ? 'bg-[#384c6b] text-white' :
                       (
-                        seat?.seat_availability === 1 ? 'border-green-800' : 
+                        seat?.seat_availability === 1 ? 'border-green-800 bg-white' : 
                         (seat?.seat_availability === 2 ? 'bg-green-700 text-white' :
                         'bg-yellow-600 text-white')
                       ))
